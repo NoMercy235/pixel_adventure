@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flame/components.dart';
-import 'package:flutter/src/services/hardware_keyboard.dart';
-import 'package:flutter/src/services/keyboard_key.g.dart';
+import 'package:flutter/services.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 import 'package:pixel_adventure/utils/constants.dart';
 

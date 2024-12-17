@@ -10,7 +10,8 @@ class Level extends World {
   late TiledComponent level;
 
   final String levelName;
-  Level({ required this.levelName });
+  final Player player;
+  Level({ required this.levelName, required this.player });
 
   @override
   FutureOr<void> onLoad() async {
@@ -20,8 +21,8 @@ class Level extends World {
     final spawnPointsLayer = level.tileMap.getLayer<ObjectGroup>(PATileLayer.spawnpoints.name);
     for (final spawnPoint in spawnPointsLayer!.objects) {
       if (spawnPoint.class_ == PASpawnPointName.player.name) {
-        final player = Player(character: PACharacter.ninjaFrog.name, position: spawnPoint.position);
-          add(player);
+        player.position = spawnPoint.position;
+        add(player);
       }
     }
 
