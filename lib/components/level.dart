@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
-import 'package:pixel_adventure/actors/player.dart';
+import 'package:pixel_adventure/components/player.dart';
 import 'package:pixel_adventure/utils/constants.dart';
 
 class Level extends World {
@@ -18,8 +18,7 @@ class Level extends World {
     level = await TiledComponent.load("$levelName.tmx", Vector2.all(16));
     add(level);
 
-    final spawnPointsLayer = level.tileMap.getLayer<ObjectGroup>(PATileLayer.spawnpoints.name);
-    for (final spawnPoint in spawnPointsLayer!.objects) {
+    for (final spawnPoint in getLayer(PATileLayer.spawnpoints.name)) {
       if (spawnPoint.class_ == PASpawnPointName.player.name) {
         player.position = spawnPoint.position;
         add(player);
@@ -29,4 +28,7 @@ class Level extends World {
     return super.onLoad();
   }
 
+  List<TiledObject> getLayer(String name) {
+    return level.tileMap.getLayer<ObjectGroup>(name)?.objects ?? [];
+  }
 }
