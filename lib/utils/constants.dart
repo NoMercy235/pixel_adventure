@@ -1,3 +1,11 @@
+enum Constants {
+  isDebugMode(true);
+
+  final dynamic value;
+
+  const Constants(this.value);
+}
+
 enum PACharacter {
   maskDude("Mask Dude"),
   ninjaFrog("Ninja Frog"),
@@ -11,7 +19,9 @@ enum PACharacter {
 
 enum PAAnimationType {
   idle("Idle"),
-  run("Run");
+  run("Run"),
+  jump("Jump"),
+  fall("Fall");
 
   final String name;
 
@@ -19,7 +29,8 @@ enum PAAnimationType {
 }
 
 enum PATileLayer {
-  spawnpoints("Spawnpoints");
+  spawnpoints("Spawnpoints"),
+  collisions("Collisions");
 
   final String name;
 
@@ -41,4 +52,14 @@ enum PALevel {
   final String name;
 
   const PALevel(this.name);
+}
+
+enum PACollisionType {
+  platform("Platform"),
+  object("Object"),
+  ground("Ground");
+
+  final String name;
+
+  const PACollisionType(this.name);
 }

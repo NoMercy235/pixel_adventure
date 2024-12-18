@@ -17,7 +17,7 @@ class PixelAdventure extends FlameGame with HasKeyboardHandlerComponents, DragCa
   late final JoystickComponent joystick;
 
   Player player = Player(character: PACharacter.ninjaFrog.name);
-  bool showJoystick = true;
+  bool showJoystick = false;
 
   @override
   FutureOr<void> onLoad() async {
