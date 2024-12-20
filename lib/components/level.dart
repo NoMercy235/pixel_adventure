@@ -4,6 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 import 'package:pixel_adventure/components/background_tile.dart';
 import 'package:pixel_adventure/components/collision_block.dart';
+import 'package:pixel_adventure/components/fruit.dart';
 import 'package:pixel_adventure/components/player.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 import 'package:pixel_adventure/utils/constants.dart';
@@ -80,6 +81,13 @@ class Level extends World with HasGameRef<PixelAdventure> {
       if (spawnPoint.class_ == PASpawnPointName.player.name) {
         player.position = spawnPoint.position;
         add(player);
+      } else if (spawnPoint.class_ == PASpawnPointName.fruit.name) {
+        final fruit = Fruit(
+          name: spawnPoint.name,
+          position: spawnPoint.position,
+          size: spawnPoint.size,  
+        );
+        add(fruit);
       }
     }
   }

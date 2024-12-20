@@ -13,7 +13,7 @@ class BackgroundTile extends SpriteComponent with HasGameRef<PixelAdventure> {
   @override
   FutureOr<void> onLoad() {
     // Showing this tile behind everything else on the screen
-    priority = -1;
+    priority = PADisplayPriority.background.value;
 
     // The tiles are pixel perfect, and having the size exactly at normalTileSize would cause the tiles to be divided by 1px lines
     // To fix this, we add a buffer which makes the tiles slightly bigger so they overlap and the lines disappear

@@ -1,6 +1,9 @@
+import 'dart:ffi';
+
 enum Constants {
   isDebugMode(true),
   normalTileSize(64.0),
+  textureSize(32.0),
   scrollSpeed(0.4),
   ;
 
@@ -42,6 +45,7 @@ enum PATileLayer {
 
 enum PASpawnPointName {
   player("Player"),
+  fruit("Fruit"),
   ;
 
   final String name;
@@ -81,4 +85,21 @@ enum PAColors {
 
   final String name;
   const PAColors(this.name);
+}
+
+enum PAObjects {
+  apple("Apple"),
+  ;
+
+  final String name;
+  const PAObjects(this.name);
+}
+
+enum PADisplayPriority {
+  background(-10),
+  collectibles(-5),
+  ;
+
+  final int value;
+  const PADisplayPriority(this.value);
 }
