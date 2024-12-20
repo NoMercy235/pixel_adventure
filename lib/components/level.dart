@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
+import 'package:pixel_adventure/components/background_tile.dart';
 import 'package:pixel_adventure/components/collision_block.dart';
 import 'package:pixel_adventure/components/player.dart';
+import 'package:pixel_adventure/pixel_adventure.dart';
 import 'package:pixel_adventure/utils/constants.dart';
 
-class Level extends World {
+class Level extends World with HasGameRef<PixelAdventure> {
 
   late TiledComponent level;
   List<CollisionBlock> collisionBlocks = [];
@@ -20,28 +22,14 @@ class Level extends World {
     level = await TiledComponent.load("$levelName.tmx", Vector2.all(16));
     add(level);
 
-    for (final spawnPoint in _getLayer(PATileLayer.spawnpoints.name)) {
-      if (spawnPoint.class_ == PASpawnPointName.player.name) {
-        player.position = spawnPoint.position;
-        add(player);
-      }
-    }
-
-    for (final collision in _getLayer(PATileLayer.collisions.name)) {
-      final switchRule = {
-        PACollisionType.platform.name: () => _handleCollisionPlatform(collision),
-        PACollisionType.object.name: () => _handleCollisionDefault(collision),
-        PACollisionType.ground.name: () => _handleCollisionDefault(collision),
-      }[collision.class_];
-      switchRule?.call();
-    }
-
-    player.collisionBlocks = collisionBlocks;
+    _scrollingBackground();
+    _spawningObjects();
+    _addCollisions();
 
     return super.onLoad();
   }
 
-  List<TiledObject> _getLayer(String name) {
+  List<TiledObject> _getLayerObjects(String name) {
     return level.tileMap.getLayer<ObjectGroup>(name)?.objects ?? [];
   }
 
@@ -64,5 +52,48 @@ class Level extends World {
     );
     collisionBlocks.add(block);
     add(block);
+  }
+  
+  void _scrollingBackground() {
+    final bgLayer = level.tileMap.getLayer(PATileLayer.background.name);
+    if (bgLayer == null) return;
+
+    final tileSize = Constants.normalTileSize.value;
+    final numTilesY = (game.size.y / tileSize).floor();
+    final numTilesX = (game.size.x / tileSize).floor();
+
+    for (double y = 0; y < game.size.y / numTilesY; y++) {
+      for (double x = 0; x < numTilesX; x++) {
+        final bgColor = bgLayer.properties.getValue(PAProperty.backgroundColor.name);
+        final bgTile = BackgroundTile(
+          color: bgColor ?? PAColors.gray,
+          position: Vector2(x * tileSize, y * tileSize - tileSize),
+        );
+
+        add(bgTile);
+      }
+    }
+  }
+  
+  void _spawningObjects() {
+    for (final spawnPoint in _getLayerObjects(PATileLayer.spawnpoints.name)) {
+      if (spawnPoint.class_ == PASpawnPointName.player.name) {
+        player.position = spawnPoint.position;
+        add(player);
+      }
+    }
+  }
+  
+  void _addCollisions() {
+    for (final collision in _getLayerObjects(PATileLayer.collisions.name)) {
+      final switchRule = {
+        PACollisionType.platform.name: () => _handleCollisionPlatform(collision),
+        PACollisionType.object.name: () => _handleCollisionDefault(collision),
+        PACollisionType.ground.name: () => _handleCollisionDefault(collision),
+      }[collision.class_];
+      switchRule?.call();
+    }
+
+    player.collisionBlocks = collisionBlocks;
   }
 }
