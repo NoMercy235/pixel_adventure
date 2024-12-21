@@ -1,12 +1,16 @@
+class NewConstants {
+  static const hellYeah = '';
+}
+
 enum Constants {
   isDebugMode(true),
-  showMobileControls(true),
+  showMobileControls(false),
   smallTileSize(16.0),
   normalTileSize(64.0),
   textureSize(32.0),
   spawningTextureSize(96.0),
   sawTextureSize(38.0),
-  scrollSpeed(0.4),
+  scrollSpeed(40.0),
   worldWidth(640.0),
   worldHeight(360.0),
   ;

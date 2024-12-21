@@ -60,28 +60,21 @@ class Level extends World with HasGameRef<PixelAdventure> {
     final bgLayer = level.tileMap.getLayer(PATileLayer.background.name);
     if (bgLayer == null) return;
 
-    final tileSize = Constants.normalTileSize.value;
-    final numTilesY = (game.size.y / tileSize).floor();
-    final numTilesX = (game.size.x / tileSize).floor();
+    final bgColor =
+        bgLayer.properties.getValue(PAProperty.backgroundColor.name);
+    final bgTile = BackgroundTile(
+      color: bgColor ?? PAColors.gray,
+      position: Vector2.zero(),
+    );
 
-    for (double y = 0; y < game.size.y / numTilesY; y++) {
-      for (double x = 0; x < numTilesX; x++) {
-        final bgColor =
-            bgLayer.properties.getValue(PAProperty.backgroundColor.name);
-        final bgTile = BackgroundTile(
-          color: bgColor ?? PAColors.gray,
-          position: Vector2(x * tileSize, y * tileSize - tileSize),
-        );
-
-        add(bgTile);
-      }
-    }
+    add(bgTile);
   }
 
   void _spawningObjects() {
     for (final spawnPoint in _getLayerObjects(PATileLayer.spawnpoints.name)) {
       if (spawnPoint.class_ == PASpawnPointName.player.name) {
         player.position = spawnPoint.position;
+        player.scale.x = 1;
         add(player);
       } else if (spawnPoint.class_ == PASpawnPointName.fruit.name) {
         final fruit = Fruit(

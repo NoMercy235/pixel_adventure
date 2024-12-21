@@ -22,8 +22,6 @@ class Checkpoint extends SpriteAnimationComponent
     with HasGameRef<PixelAdventure>, CollisionCallbacks {
   Checkpoint({super.position, super.size});
 
-  bool _hasReachedCheckpoint = false;
-
   @override
   FutureOr<void> onLoad() {
     debugMode = Constants.isDebugMode.value;
@@ -38,12 +36,12 @@ class Checkpoint extends SpriteAnimationComponent
   }
 
   @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (other is Player && !_hasReachedCheckpoint) {
-      _hasReachedCheckpoint = true;
+  void onCollisionStart(
+      Set<Vector2> intersectionPoints, PositionComponent other) {
+    if (other is Player) {
       _handleReachedCheckpoint();
     }
-    super.onCollision(intersectionPoints, other);
+    super.onCollisionStart(intersectionPoints, other);
   }
 
   void _handleReachedCheckpoint() {

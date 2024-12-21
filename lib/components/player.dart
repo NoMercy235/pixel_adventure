@@ -48,6 +48,8 @@ class Player extends SpriteAnimationGroupComponent
   CustomHitbox hitbox =
       CustomHitbox(offsetX: 10, offsetY: 4, width: 14, height: 28);
   Vector2 startingPosition = Vector2(0, 0);
+  double fixedDeltaTime = 1 / 60;
+  double accumulatedTime = 0;
 
   String character;
 
@@ -70,13 +72,19 @@ class Player extends SpriteAnimationGroupComponent
 
   @override
   void update(double dt) {
-    if (!gotHit && !hasReachedCheckpoint) {
-      _updatePlayerMovement(dt);
-      _updatePlayerState(dt);
-      _checkHorizontalCollisions();
-      _checkGravity(dt);
-      _checkVerticalCollisions();
+    accumulatedTime += dt;
+
+    while (accumulatedTime >= fixedDeltaTime) {
+      if (!gotHit && !hasReachedCheckpoint) {
+        _updatePlayerMovement(fixedDeltaTime);
+        _updatePlayerState();
+        _checkHorizontalCollisions();
+        _checkGravity(fixedDeltaTime);
+        _checkVerticalCollisions();
+      }
+      accumulatedTime -= dt;
     }
+
     super.update(dt);
   }
 
@@ -98,14 +106,14 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+  void onCollisionStart(
+      Set<Vector2> intersectionPoints, PositionComponent other) {
     if (!hasReachedCheckpoint) {
       if (other is Fruit) other.handlePlayerCollision();
       if (other is Saw && !gotHit) _respawn();
       if (other is Checkpoint) _handleReachedCheckpoint();
     }
-
-    super.onCollision(intersectionPoints, other);
+    super.onCollisionStart(intersectionPoints, other);
   }
 
   void _loadAllAnimations() {
@@ -170,7 +178,7 @@ class Player extends SpriteAnimationGroupComponent
     position.x += velocity.x * dt;
   }
 
-  void _updatePlayerState(double dt) {
+  void _updatePlayerState() {
     PlayerState ps = PlayerState.idle;
 
     if (velocity.x < 0 && scale.x > 0) {
