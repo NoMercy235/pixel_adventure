@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/services.dart';
 import 'package:pixel_adventure/components/checkpoint.dart';
 import 'package:pixel_adventure/components/collision_block.dart';
@@ -251,6 +252,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _playerJump(double dt) {
+    game.playFlameSound('jump.wav');
     velocity.y = -jumpForce;
     position.y += velocity.y * dt;
     hasJumped = false;
@@ -258,6 +260,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _respawn() {
+    game.playFlameSound('hit.wav');
     gotHit = true;
 
     current = PlayerState.hit;
@@ -286,6 +289,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _handleReachedCheckpoint() {
+    game.playFlameSound('disappear.wav');
     hasReachedCheckpoint = true;
     current = PlayerState.disappearing;
 
@@ -305,7 +309,8 @@ class Player extends SpriteAnimationGroupComponent
       // hiding the player so the user does not see the leftover animation
       position = Vector2.all(-640);
 
-      const waitTilNextLevel = Duration(seconds: 3);
+      final waitTilNextLevel =
+          Duration(seconds: Constants.timeTilNextLevel.value);
       Future.delayed(waitTilNextLevel, () {
         game.loadNextLevel();
       });

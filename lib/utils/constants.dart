@@ -13,6 +13,8 @@ enum Constants {
   scrollSpeed(40.0),
   worldWidth(640.0),
   worldHeight(360.0),
+  initialSoundVolume(1.0),
+  timeTilNextLevel(3),
   ;
 
   final dynamic value;

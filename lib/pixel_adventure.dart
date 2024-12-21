@@ -9,10 +9,12 @@ import 'package:pixel_adventure/components/jump_button.dart';
 import 'package:pixel_adventure/components/player.dart';
 import 'package:pixel_adventure/components/level.dart';
 import 'package:pixel_adventure/utils/constants.dart';
+import 'package:pixel_adventure/utils/utils.dart';
 
 class PixelAdventure extends FlameGame
     with
         HasKeyboardHandlerComponents,
+        HasFlameAudio,
         DragCallbacks,
         TapCallbacks,
         HasCollisionDetection {

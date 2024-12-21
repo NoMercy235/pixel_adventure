@@ -1,3 +1,7 @@
+import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'package:pixel_adventure/utils/constants.dart';
+
 bool checkCollision(player, block) {
   final hitbox = player.hitbox;
   final playerX = player.position.x + hitbox.offsetX;
@@ -19,4 +23,14 @@ bool checkCollision(player, block) {
       playerY + playerHeight > blockY &&
       fixedX < blockX + blockWidth &&
       fixedX + playerWidth > blockX);
+}
+
+mixin HasFlameAudio on FlameGame {
+  bool playSounds = true;
+  double soundVolume = Constants.initialSoundVolume.value;
+
+  playFlameSound(String path) {
+    if (!playSounds) return;
+    FlameAudio.play(path, volume: soundVolume);
+  }
 }

@@ -15,6 +15,8 @@ class Fruit extends SpriteAnimationComponent
 
   final hitbox = CustomHitbox(offsetX: 10, offsetY: 10, width: 12, height: 12);
 
+  bool _collected = false;
+
   @override
   FutureOr<void> onLoad() {
     debugMode = Constants.isDebugMode.value;
@@ -37,6 +39,11 @@ class Fruit extends SpriteAnimationComponent
   }
 
   void handlePlayerCollision() {
+    if (_collected) return;
+    _collected = true;
+
+    game.playFlameSound('collect_fruit.wav');
+
     animation = SpriteAnimation.fromFrameData(
       game.images.fromCache('Items/Fruits/Collected.png'),
       SpriteAnimationData.sequenced(
