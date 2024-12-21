@@ -21,12 +21,13 @@ class Saw extends SpriteAnimationComponent
   final bool isVertical;
   final double offNeg;
   final double offPos;
-  Saw(
-      {super.position,
-      super.size,
-      this.isVertical = false,
-      this.offNeg = 0,
-      this.offPos = 0});
+  Saw({
+    super.position,
+    super.size,
+    this.isVertical = false,
+    this.offNeg = 0,
+    this.offPos = 0,
+  });
 
   double moveDirection = 1;
   double rangeNeg = 0;

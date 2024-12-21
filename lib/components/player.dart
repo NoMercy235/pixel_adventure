@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/services.dart';
 import 'package:pixel_adventure/components/checkpoint.dart';
+import 'package:pixel_adventure/components/chicken.dart';
 import 'package:pixel_adventure/components/collision_block.dart';
 import 'package:pixel_adventure/components/custom_hitbox.dart';
 import 'package:pixel_adventure/components/fruit.dart';
@@ -25,10 +25,8 @@ enum PlayerState {
 
 const playerMoveSpeed = 100.0;
 const animationPlayTime = 0.05;
-const gravity = 9.8;
 const jumpForce = 280.0;
 const terminalVelocity = 300.0;
-Vector2 velocity = Vector2.zero();
 
 class Player extends SpriteAnimationGroupComponent
     with HasGameRef<PixelAdventure>, KeyboardHandler, CollisionCallbacks {
@@ -51,6 +49,7 @@ class Player extends SpriteAnimationGroupComponent
   Vector2 startingPosition = Vector2(0, 0);
   double fixedDeltaTime = 1 / 60;
   double accumulatedTime = 0;
+  Vector2 velocity = Vector2.zero();
 
   String character;
 
@@ -113,8 +112,18 @@ class Player extends SpriteAnimationGroupComponent
       if (other is Fruit) other.handlePlayerCollision();
       if (other is Saw && !gotHit) _respawn();
       if (other is Checkpoint) _handleReachedCheckpoint();
+      if (other is Chicken) other.handlePlayerCollision();
     }
     super.onCollisionStart(intersectionPoints, other);
+  }
+
+  void handleEnemyCollision(HasEnemyProperties enemy) {
+    _respawn();
+  }
+
+  void handleEnemyKill() {
+    hasJumped = true;
+    isOnGround = true;
   }
 
   void _loadAllAnimations() {
@@ -189,7 +198,7 @@ class Player extends SpriteAnimationGroupComponent
     }
 
     if (velocity.x != 0) ps = PlayerState.running;
-    if (velocity.y > gravity) ps = PlayerState.falling;
+    if (velocity.y > Constants.gravity.value) ps = PlayerState.falling;
     if (velocity.y < 0) ps = PlayerState.jumping;
 
     current = ps;
@@ -216,7 +225,7 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _checkGravity(double dt) {
-    velocity.y += gravity;
+    velocity.y += Constants.gravity.value;
     velocity.y = velocity.y.clamp(-jumpForce, terminalVelocity);
     position.y += velocity.y * dt;
   }

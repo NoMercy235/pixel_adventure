@@ -3,7 +3,7 @@ class NewConstants {
 }
 
 enum Constants {
-  isDebugMode(true),
+  isDebugMode(false),
   showMobileControls(false),
   smallTileSize(16.0),
   normalTileSize(64.0),
@@ -15,6 +15,7 @@ enum Constants {
   worldHeight(360.0),
   initialSoundVolume(1.0),
   timeTilNextLevel(3),
+  gravity(9.8),
   ;
 
   final dynamic value;
@@ -61,6 +62,7 @@ enum PASpawnPointName {
   fruit("Fruit"),
   saw("Saw"),
   checkpoint("Checkpoint"),
+  chicken("Chicken"),
   ;
 
   final String name;

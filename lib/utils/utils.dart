@@ -1,3 +1,4 @@
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:pixel_adventure/utils/constants.dart';
@@ -33,4 +34,14 @@ mixin HasFlameAudio on FlameGame {
     if (!playSounds) return;
     FlameAudio.play(path, volume: soundVolume);
   }
+}
+
+mixin HasEnemyProperties on SpriteAnimationGroupComponent {}
+
+bool isBetween(int min, int max, int val) {
+  return val >= min && val <= max;
+}
+
+bool intervalsOverlap(int start1, int end1, int start2, int end2) {
+  return start1 <= end2 && start2 <= end1;
 }
