@@ -1,11 +1,14 @@
 enum Constants {
   isDebugMode(true),
+  showMobileControls(true),
   smallTileSize(16.0),
   normalTileSize(64.0),
   textureSize(32.0),
   spawningTextureSize(96.0),
   sawTextureSize(38.0),
   scrollSpeed(0.4),
+  worldWidth(640.0),
+  worldHeight(360.0),
   ;
 
   final dynamic value;
@@ -30,6 +33,7 @@ enum PAAnimationType {
   fall("Fall"),
   hit("Hit"),
   appearing("Appearing"),
+  disappearing("Disappearing"),
   ;
 
   final String name;
@@ -107,6 +111,7 @@ enum PADisplayPriority {
   background(-10),
   traps(-7),
   collectibles(-5),
+  mobileControls(10),
   ;
 
   final int value;
