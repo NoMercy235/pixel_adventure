@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 import 'package:pixel_adventure/components/background_tile.dart';
+import 'package:pixel_adventure/components/checkpoint.dart';
 import 'package:pixel_adventure/components/collision_block.dart';
 import 'package:pixel_adventure/components/fruit.dart';
 import 'package:pixel_adventure/components/player.dart';
@@ -102,6 +103,12 @@ class Level extends World with HasGameRef<PixelAdventure> {
           offPos: offPos,
         );
         add(saw);
+      } else if (spawnPoint.class_ == PASpawnPointName.checkpoint.name) {
+        final checkpoint = Checkpoint(
+          position: spawnPoint.position,
+          size: spawnPoint.size,
+        );
+        add(checkpoint);
       }
     }
   }

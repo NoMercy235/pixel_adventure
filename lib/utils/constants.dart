@@ -50,6 +50,7 @@ enum PASpawnPointName {
   player("Player"),
   fruit("Fruit"),
   saw("Saw"),
+  checkpoint("Checkpoint"),
   ;
 
   final String name;
