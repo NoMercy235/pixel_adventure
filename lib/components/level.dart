@@ -6,17 +6,17 @@ import 'package:pixel_adventure/components/background_tile.dart';
 import 'package:pixel_adventure/components/collision_block.dart';
 import 'package:pixel_adventure/components/fruit.dart';
 import 'package:pixel_adventure/components/player.dart';
+import 'package:pixel_adventure/components/saw.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 import 'package:pixel_adventure/utils/constants.dart';
 
 class Level extends World with HasGameRef<PixelAdventure> {
-
   late TiledComponent level;
   List<CollisionBlock> collisionBlocks = [];
 
   final String levelName;
   final Player player;
-  Level({ required this.levelName, required this.player });
+  Level({required this.levelName, required this.player});
 
   @override
   FutureOr<void> onLoad() async {
@@ -54,7 +54,7 @@ class Level extends World with HasGameRef<PixelAdventure> {
     collisionBlocks.add(block);
     add(block);
   }
-  
+
   void _scrollingBackground() {
     final bgLayer = level.tileMap.getLayer(PATileLayer.background.name);
     if (bgLayer == null) return;
@@ -65,7 +65,8 @@ class Level extends World with HasGameRef<PixelAdventure> {
 
     for (double y = 0; y < game.size.y / numTilesY; y++) {
       for (double x = 0; x < numTilesX; x++) {
-        final bgColor = bgLayer.properties.getValue(PAProperty.backgroundColor.name);
+        final bgColor =
+            bgLayer.properties.getValue(PAProperty.backgroundColor.name);
         final bgTile = BackgroundTile(
           color: bgColor ?? PAColors.gray,
           position: Vector2(x * tileSize, y * tileSize - tileSize),
@@ -75,7 +76,7 @@ class Level extends World with HasGameRef<PixelAdventure> {
       }
     }
   }
-  
+
   void _spawningObjects() {
     for (final spawnPoint in _getLayerObjects(PATileLayer.spawnpoints.name)) {
       if (spawnPoint.class_ == PASpawnPointName.player.name) {
@@ -85,17 +86,31 @@ class Level extends World with HasGameRef<PixelAdventure> {
         final fruit = Fruit(
           name: spawnPoint.name,
           position: spawnPoint.position,
-          size: spawnPoint.size,  
+          size: spawnPoint.size,
         );
         add(fruit);
+      } else if (spawnPoint.class_ == PASpawnPointName.saw.name) {
+        final isVertical =
+            spawnPoint.properties.getValue(PAProperty.isVertical.name);
+        final offNeg = spawnPoint.properties.getValue(PAProperty.offNeg.name);
+        final offPos = spawnPoint.properties.getValue(PAProperty.offPos.name);
+        final saw = Saw(
+          position: spawnPoint.position,
+          size: spawnPoint.size,
+          isVertical: isVertical,
+          offNeg: offNeg,
+          offPos: offPos,
+        );
+        add(saw);
       }
     }
   }
-  
+
   void _addCollisions() {
     for (final collision in _getLayerObjects(PATileLayer.collisions.name)) {
       final switchRule = {
-        PACollisionType.platform.name: () => _handleCollisionPlatform(collision),
+        PACollisionType.platform.name: () =>
+            _handleCollisionPlatform(collision),
         PACollisionType.object.name: () => _handleCollisionDefault(collision),
         PACollisionType.ground.name: () => _handleCollisionDefault(collision),
       }[collision.class_];

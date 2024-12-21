@@ -1,9 +1,10 @@
-import 'dart:ffi';
-
 enum Constants {
   isDebugMode(true),
+  smallTileSize(16.0),
   normalTileSize(64.0),
   textureSize(32.0),
+  spawningTextureSize(96.0),
+  sawTextureSize(38.0),
   scrollSpeed(0.4),
   ;
 
@@ -27,6 +28,8 @@ enum PAAnimationType {
   run("Run"),
   jump("Jump"),
   fall("Fall"),
+  hit("Hit"),
+  appearing("Appearing"),
   ;
 
   final String name;
@@ -46,6 +49,7 @@ enum PATileLayer {
 enum PASpawnPointName {
   player("Player"),
   fruit("Fruit"),
+  saw("Saw"),
   ;
 
   final String name;
@@ -54,6 +58,9 @@ enum PASpawnPointName {
 
 enum PAProperty {
   backgroundColor("BackgroundColor"),
+  isVertical("isVertical"),
+  offNeg("offNeg"),
+  offPos("offPos"),
   ;
 
   final String name;
@@ -97,6 +104,7 @@ enum PAObjects {
 
 enum PADisplayPriority {
   background(-10),
+  traps(-7),
   collectibles(-5),
   ;
 

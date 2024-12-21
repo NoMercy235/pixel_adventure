@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:pixel_adventure/components/collision_block.dart';
 import 'package:pixel_adventure/components/custom_hitbox.dart';
 import 'package:pixel_adventure/components/fruit.dart';
+import 'package:pixel_adventure/components/saw.dart';
 import 'package:pixel_adventure/pixel_adventure.dart';
 import 'package:pixel_adventure/utils/constants.dart';
 import 'package:pixel_adventure/utils/utils.dart';
@@ -15,6 +16,8 @@ enum PlayerState {
   running,
   jumping,
   falling,
+  hit,
+  appearing,
 }
 
 const playerMoveSpeed = 100.0;
@@ -24,28 +27,34 @@ const jumpForce = 280.0;
 const terminalVelocity = 300.0;
 Vector2 velocity = Vector2.zero();
 
-class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventure>, KeyboardHandler, CollisionCallbacks {
+class Player extends SpriteAnimationGroupComponent
+    with HasGameRef<PixelAdventure>, KeyboardHandler, CollisionCallbacks {
   late final SpriteAnimation idleAnimation;
   late final SpriteAnimation runAnimation;
   late final SpriteAnimation jumpAnimation;
   late final SpriteAnimation fallAnimation;
-  
+  late final SpriteAnimation hitAnimation;
+  late final SpriteAnimation appearingAnimation;
+
   double horizontalMovement = 0.0;
   List<CollisionBlock> collisionBlocks = [];
   bool isOnGround = false;
   bool hasJumped = false;
-  CustomHitbox hitbox = CustomHitbox(offsetX: 10, offsetY: 4, width: 14, height: 28);
+  bool gotHit = false;
+  CustomHitbox hitbox =
+      CustomHitbox(offsetX: 10, offsetY: 4, width: 14, height: 28);
+  Vector2 startingPosition = Vector2(0, 0);
 
   String character;
 
-  Player({ super.position, required this.character });
+  Player({super.position, required this.character});
 
   @override
   FutureOr<void> onLoad() {
+    startingPosition = Vector2(position.x, position.y);
     _loadAllAnimations();
 
     if (Constants.isDebugMode.value) {
-      print('here');
       debugMode = true;
       add(RectangleHitbox(
         position: Vector2(hitbox.offsetX, hitbox.offsetY),
@@ -57,11 +66,13 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
 
   @override
   void update(double dt) {
-    _updatePlayerMovement(dt);
-    _updatePlayerState(dt);
-    _checkHorizontalCollisions();
-    _checkGravity(dt);
-    _checkVerticalCollisions();
+    if (!gotHit) {
+      _updatePlayerMovement(dt);
+      _updatePlayerState(dt);
+      _checkHorizontalCollisions();
+      _checkGravity(dt);
+      _checkVerticalCollisions();
+    }
     super.update(dt);
   }
 
@@ -69,8 +80,10 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
   bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
     horizontalMovement = 0;
 
-    final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) || keysPressed.contains(LogicalKeyboardKey.arrowLeft);
-    final isRightKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyD) || keysPressed.contains(LogicalKeyboardKey.arrowRight);
+    final isLeftKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyA) ||
+        keysPressed.contains(LogicalKeyboardKey.arrowLeft);
+    final isRightKeyPressed = keysPressed.contains(LogicalKeyboardKey.keyD) ||
+        keysPressed.contains(LogicalKeyboardKey.arrowRight);
 
     horizontalMovement += isLeftKeyPressed ? -1 : 0;
     horizontalMovement += isRightKeyPressed ? 1 : 0;
@@ -82,30 +95,63 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    if (other is Fruit) (other as Fruit).handlePlayerCollision();
+    if (other is Fruit) other.handlePlayerCollision();
+    if (other is Saw && !gotHit) {
+      gotHit = true;
+      _respawn();
+      other.handlePlayerCollision();
+    }
     super.onCollision(intersectionPoints, other);
   }
-  
+
   void _loadAllAnimations() {
-    idleAnimation = _getSpriteAnimationImages(PAAnimationType.idle.name, 11);
-    runAnimation = _getSpriteAnimationImages(PAAnimationType.run.name, 12);
-    jumpAnimation = _getSpriteAnimationImages(PAAnimationType.jump.name, 1);
-    fallAnimation = _getSpriteAnimationImages(PAAnimationType.fall.name, 1);
+    idleAnimation =
+        _getCharacterSpriteAnimationImages(PAAnimationType.idle.name, 11);
+    runAnimation =
+        _getCharacterSpriteAnimationImages(PAAnimationType.run.name, 12);
+    jumpAnimation =
+        _getCharacterSpriteAnimationImages(PAAnimationType.jump.name, 1);
+    fallAnimation =
+        _getCharacterSpriteAnimationImages(PAAnimationType.fall.name, 1);
+    hitAnimation =
+        _getCharacterSpriteAnimationImages(PAAnimationType.hit.name, 7)
+          ..loop = false;
+    appearingAnimation =
+        _getSpawningSpriteAnimationImages(PAAnimationType.appearing.name, 7)
+          ..loop = false;
 
     animations = {
       PlayerState.idle: idleAnimation,
       PlayerState.running: runAnimation,
-      PlayerState.jumping: runAnimation,
-      PlayerState.falling: runAnimation,
+      PlayerState.jumping: jumpAnimation,
+      PlayerState.falling: fallAnimation,
+      PlayerState.hit: hitAnimation,
+      PlayerState.appearing: appearingAnimation,
     };
 
-    current = PlayerState.running;
+    current = PlayerState.idle;
   }
 
-  SpriteAnimation _getSpriteAnimationImages(String animationName, int amount) {
+  SpriteAnimation _getCharacterSpriteAnimationImages(
+      String animationName, int amount) {
     return SpriteAnimation.fromFrameData(
-      game.images.fromCache('Main Characters/$character/$animationName (32x32).png'), 
-      SpriteAnimationData.sequenced(amount: amount, stepTime: animationPlayTime, textureSize: Vector2.all(Constants.textureSize.value)),
+      game.images
+          .fromCache('Main Characters/$character/$animationName (32x32).png'),
+      SpriteAnimationData.sequenced(
+          amount: amount,
+          stepTime: animationPlayTime,
+          textureSize: Vector2.all(Constants.textureSize.value)),
+    );
+  }
+
+  SpriteAnimation _getSpawningSpriteAnimationImages(
+      String animationName, int amount) {
+    return SpriteAnimation.fromFrameData(
+      game.images.fromCache('Main Characters/$animationName (96x96).png'),
+      SpriteAnimationData.sequenced(
+          amount: amount,
+          stepTime: animationPlayTime,
+          textureSize: Vector2.all(Constants.spawningTextureSize.value)),
     );
   }
 
@@ -115,7 +161,7 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
     velocity.x = horizontalMovement * playerMoveSpeed;
     position.x += velocity.x * dt;
   }
-  
+
   void _updatePlayerState(double dt) {
     PlayerState ps = PlayerState.idle;
 
@@ -131,7 +177,7 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
 
     current = ps;
   }
-  
+
   void _checkHorizontalCollisions() {
     for (final block in collisionBlocks) {
       if (block.isPlatform) {
@@ -151,13 +197,13 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
       }
     }
   }
-  
+
   void _checkGravity(double dt) {
     velocity.y += gravity;
     velocity.y = velocity.y.clamp(-jumpForce, terminalVelocity);
     position.y += velocity.y * dt;
   }
-  
+
   void _checkVerticalCollisions() {
     for (final block in collisionBlocks) {
       if (block.isPlatform) {
@@ -187,11 +233,37 @@ class Player extends SpriteAnimationGroupComponent with HasGameRef<PixelAdventur
       }
     }
   }
-  
+
   void _playerJump(double dt) {
     velocity.y = -jumpForce;
     position.y += velocity.y * dt;
     hasJumped = false;
     isOnGround = false;
+  }
+
+  void _respawn() {
+    current = PlayerState.hit;
+    final hitAnimationTicker = animationTickers![PlayerState.hit]!;
+
+    hitAnimationTicker.onComplete = () {
+      scale.x = 1;
+      // We need to offset the position of the appearing animation because it is bigger than
+      // the player animation itself.
+      final offsetPos = Constants.spawningTextureSize.value -
+          (Constants.textureSize.value * 2);
+      position = startingPosition - Vector2.all(offsetPos);
+      current = PlayerState.appearing;
+      hitAnimationTicker.reset();
+
+      final appearingAnimationTicker =
+          animationTickers![PlayerState.appearing]!;
+      appearingAnimationTicker.onComplete = () {
+        current = PlayerState.idle;
+        position = startingPosition;
+        velocity = Vector2.zero();
+        gotHit = false;
+        appearingAnimationTicker.reset();
+      };
+    };
   }
 }
