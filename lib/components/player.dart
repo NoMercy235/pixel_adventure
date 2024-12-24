@@ -60,13 +60,11 @@ class Player extends SpriteAnimationGroupComponent
     startingPosition = Vector2(position.x, position.y);
     _loadAllAnimations();
 
-    if (Constants.isDebugMode.value) {
-      debugMode = true;
-      add(RectangleHitbox(
-        position: Vector2(hitbox.offsetX, hitbox.offsetY),
-        size: Vector2(hitbox.width, hitbox.height),
-      ));
-    }
+    debugMode = Constants.isDebugMode.value;
+    add(RectangleHitbox(
+      position: Vector2(hitbox.offsetX, hitbox.offsetY),
+      size: Vector2(hitbox.width, hitbox.height),
+    ));
     return super.onLoad();
   }
 
@@ -108,7 +106,10 @@ class Player extends SpriteAnimationGroupComponent
   @override
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
+    print("collided");
+
     if (!hasReachedCheckpoint) {
+      print("collided");
       if (other is Fruit) other.handlePlayerCollision();
       if (other is Saw && !gotHit) _respawn();
       if (other is Checkpoint) _handleReachedCheckpoint();
